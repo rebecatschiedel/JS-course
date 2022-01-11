@@ -20,6 +20,7 @@ const initialValues = {
 // Initialize your Number
 let secretNumber = Math.trunc(Math.random() * 20) + 1;
 let score = 20;
+let highscoreCount = 0;
 
 // Create a function to reset the game
 const handleReset = function () {
@@ -65,8 +66,9 @@ const handleCheck = function () {
     message.textContent = 'you got it girl!';
 
     // Check the highscore and, if necessary, update it too
-    if (Number(scoreCount.textContent) > Number(highscore.textContent)) {
-      highscore.textContent = scoreCount.textContent;
+    if (score > highscoreCount) {
+      highscoreCount = score;
+      highscore.textContent = highscoreCount;
     }
 
     // update the background color and make the number wider
@@ -74,8 +76,7 @@ const handleCheck = function () {
     document.querySelector('.number').style.width = '30rem';
   } else {
     // Decrease the score
-    score--;
-    scoreCount.textContent = score;
+    scoreCount.textContent = --score;
 
     if (score === 0) {
       message.textContent = 'you lost the game';
@@ -85,11 +86,8 @@ const handleCheck = function () {
     }
 
     // Update the message
-    if (guessInput < secretNumber) {
-      message.textContent = 'Too low...';
-    } else {
-      message.textContent = 'Too high...';
-    }
+    message.textContent =
+      guessInput < secretNumber ? 'Too low...' : 'Too high...';
   }
 };
 
