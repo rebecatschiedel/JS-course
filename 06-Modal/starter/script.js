@@ -18,5 +18,13 @@ buttons.forEach(button => button.addEventListener('click', handleClick));
 // Close modal when click the button on the modal
 buttonCloseModal.addEventListener('click', handleClick);
 
-// Close the modal when click outside it
+// Close the modal when click outside it, using the overlay div.
 overlay.addEventListener('click', handleClick);
+
+// Close the modal when click the ESC
+document.addEventListener('keydown', function (event) {
+  if (event.key === 'Escape') {
+    modal.classList.add('hidden');
+    overlay.classList.add('hidden');
+  }
+});
