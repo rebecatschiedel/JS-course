@@ -33,9 +33,7 @@ const changePlayer = function () {
 };
 
 // Win function
-const checkWinner = function () {
-  let totalScore =
-    Number(scores[currentPlayer].textContent) + currentScoreCount;
+const checkWinner = function (totalScore) {
   // Check if total score = 100
   if (totalScore >= 10) {
     // Hide the dice
@@ -47,7 +45,9 @@ const checkWinner = function () {
     // Disable Roll dice and Hold buttons
     btnRollDice.disabled = true;
     btnHold.disabled = true;
+    return true;
   }
+  return false;
 };
 
 // Add a function to handle the "Roll Dice" button clicked
@@ -65,9 +65,6 @@ const handleRollDice = function () {
     // Update current score for current player
     currentScoreCount += diceNumber;
     currentScores[currentPlayer].textContent = currentScoreCount;
-
-    //Check if it wins the game
-    checkWinner();
   }
 };
 
@@ -79,10 +76,13 @@ const handleHold = function () {
   // Update total score
   scores[currentPlayer].textContent = totalScoreCount;
 
-  changePlayer();
+  dice.style.display = 'none';
+
+  //Check if it wins the game
+  if (checkWinner(totalScoreCount)) return;
 
   // Hide dice
-  dice.style.display = 'none';
+  changePlayer();
 };
 
 // Add a function to handle the "New Game" button clicked
