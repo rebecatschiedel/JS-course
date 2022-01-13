@@ -13,7 +13,7 @@ const backgroundSections = document.querySelectorAll('.player');
 let diceNumber;
 let currentPlayer = 0;
 let currentScoreCount = 0;
-dice.style.display = 'none';
+dice.classList.add('hidden');
 
 // Active player selection
 const changePlayer = function () {
@@ -37,7 +37,7 @@ const checkWinner = function (totalScore) {
   // Check if total score = 100
   if (totalScore >= 10) {
     // Hide the dice
-    dice.style.display = 'none';
+    dice.classList.remove('hidden');
 
     // Update the background
     backgroundSections[currentPlayer].classList.add('player--winner');
@@ -57,9 +57,9 @@ const handleRollDice = function () {
 
   // Show dice
   dice.src = `dice-${diceNumber}.png`;
-  dice.style.display = 'block';
+  dice.classList.remove('hidden');
 
-  // It the number === 1
+  // Dice = 1 is automatic lose
   if (diceNumber === 1) changePlayer();
   else {
     // Update current score for current player
@@ -76,12 +76,12 @@ const handleHold = function () {
   // Update total score
   scores[currentPlayer].textContent = totalScoreCount;
 
-  dice.style.display = 'none';
+  // Hide dice
+  dice.classList.toggle('hidden');
 
   //Check if it wins the game
   if (checkWinner(totalScoreCount)) return;
 
-  // Hide dice
   changePlayer();
 };
 
@@ -93,18 +93,17 @@ const handleNewGame = function () {
 
   currentScoreCount = 0;
 
+  // Reset background
+  backgroundSections.forEach(section =>
+    section.classList.remove('player--winner', 'player--active')
+  );
+
   // Reset player
   currentPlayer = 0;
   backgroundSections[0].classList.add('player--active');
-  backgroundSections[1].classList.remove('player--active');
-
-  // Reset background
-  backgroundSections.forEach(section =>
-    section.classList.remove('player--winner')
-  );
 
   // Hide dice
-  dice.style.display = 'none';
+  dice.classList.add('hidden');
 
   // Enable buttons
   btnRollDice.disabled = false;
