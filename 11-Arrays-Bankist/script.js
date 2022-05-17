@@ -584,7 +584,6 @@ console.log(dogs.some(dog => okAmountFood(dog)));
 const okDog = dogs.filter(dog => okAmountFood(dog));
 console.log(okDog);
 
-console.log(dogs);
 const shallowDogs = [...dogs].sort(
   (a, b) => a.recommendedFood - b.recommendedFood
 );
