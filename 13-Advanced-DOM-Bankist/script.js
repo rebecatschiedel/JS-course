@@ -6,8 +6,10 @@ const btnCloseModal = document.querySelector('.btn--close-modal');
 const btnsOpenModal = document.querySelectorAll('.btn--show-modal');
 
 const btnScrollTo = document.querySelector('.btn--scroll-to');
+const allSections = document.querySelectorAll('.section');
 const section1 = document.querySelector('#section--1');
 
+const header = document.querySelector('.header');
 const nav = document.querySelector('.nav');
 
 const tabs = document.querySelectorAll('.operations__tab');
@@ -118,35 +120,112 @@ tabsContainer.addEventListener('click', e => {
 });
 
 // Menu fade animation
+const handleHover = function (e) {
+  if (e.target.classList.contains('nav__link')) {
+    const link = e.target;
+    const siblings = link.closest('.nav').querySelectorAll('.nav__link');
+    const logo = link.closest('.nav').querySelector('img');
+
+    siblings.forEach(el => {
+      if (el !== link) el.style.opacity = this;
+    });
+    //the this keyword comes from the .bind to pass the argument
+    logo.style.opacity = this;
+  }
+};
+
 // mouseenter does not bubble and mouseover does
-nav.addEventListener('mouseover', function (e) {
-  if (e.target.classList.contains('nav__link')) {
-    console.log('burdayim abi');
-    const link = e.target;
-    const siblings = link.closest('.nav').querySelectorAll('.nav__link');
-    const logo = link.closest('.nav').querySelector('img');
+nav.addEventListener('mouseover', handleHover.bind(0.5));
 
-    siblings.forEach(el => {
-      if (el !== link) el.style.opacity = 0.5;
-    });
+nav.addEventListener('mouseout', handleHover.bind(1));
 
-    logo.style.opacity = 0.5;
-  }
+//Sticky navigation
+/*
+Option 1
+//very bad perfomance because the scroll event fires all the time
+const initalCoords = section1.getBoundingClientRect();
+
+window.addEventListener('scroll', function (e) {
+  if (window.scrollY > initalCoords.top) nav.classList.add('sticky');
+  else nav.classList.remove('sticky');
 });
 
-nav.addEventListener('mouseout', function (e) {
-  if (e.target.classList.contains('nav__link')) {
-    const link = e.target;
-    const siblings = link.closest('.nav').querySelectorAll('.nav__link');
-    const logo = link.closest('.nav').querySelector('img');
+//Explaining Intersection Observer
+const obsCallBack = function (entries, observer) {
+  entries.forEach(entry => console.log(entry));
+};
+const obsOptions = {
+  root: null,
+  threshold: [0, 0.2],
+};
 
-    siblings.forEach(el => {
-      if (el !== link) el.style.opacity = 1;
-    });
+const observer = new IntersectionObserver(obsCallBack, obsOptions);
+observer.observe(section1);
+*/
+const navHeight = nav.getBoundingClientRect().height;
 
-    logo.style.opacity = 1;
-  }
+const stickyNav = function (entries, observer) {
+  const [entry] = entries; //entries[0]
+
+  if (!entry.isIntersecting) nav.classList.add('sticky');
+  else nav.classList.remove('sticky');
+};
+
+const headerObserver = new IntersectionObserver(stickyNav, {
+  root: null,
+  threshold: 0,
+  rootMargin: `-${navHeight}px`,
 });
+headerObserver.observe(header);
+
+//Reveal Sections
+const revealSection = function (entries, observer) {
+  const [entry] = entries;
+
+  //guard clause
+  if (!entry.isIntersecting) return;
+
+  entry.target.classList.remove('section--hidden');
+  observer.unobserve(entry.target);
+};
+
+const sectionObserver = new IntersectionObserver(revealSection, {
+  root: null,
+  threshold: 0.1,
+});
+
+allSections.forEach(section => {
+  sectionObserver.observe(section);
+  section.classList.add('section--hidden');
+});
+
+//Lazy loading images
+const imgTargets = document.querySelectorAll('img[data-src]');
+
+const loadImg = function (entries, observer) {
+  const [entry] = entries;
+
+  //guard clause
+  if (!entry.isIntersecting) return;
+
+  //replace src with data-src will trigger a 'load' event
+  entry.target.src = entry.target.dataset.src;
+
+  // only remove the filter after the image is loaded
+  entry.target.addEventListener('load', function () {
+    entry.target.classList.remove('lazy-img');
+  });
+
+  observer.unobserve(entry.target);
+};
+
+const imgObserver = new IntersectionObserver(loadImg, {
+  root: null,
+  threshold: 0,
+  rootMargin: '+200px', // will make sure the images are already loaded when we reach that part of the page
+});
+
+imgTargets.forEach(img => imgObserver.observe(img));
 
 ////////////////////////////////////////////////////
 // LECTURES
@@ -156,7 +235,7 @@ console.log(document.head);
 console.log(document.body);
 
 const oneSection = document.querySelector('.section');
-const allSections = document.querySelectorAll('.section');
+//const allSections = document.querySelectorAll('.section');
 
 document.getElementById('section--1');
 // returns an HTML collection, not a node list
@@ -173,13 +252,13 @@ message.classList.add('cookie-message');
 message.innerHTML =
   'We use cookies for improved functionality and analytics. <button class="btn btn--close--cookie">Got it!</button> ';
 
-const header = document.querySelector('.header');
-//header.prepend(message);
-header.append(message);
-//header.prepend(message.cloneNode(true));
+const headerTest = document.querySelector('.header');
+//headerTest.prepend(message);
+headerTest.append(message);
+//headerTest.prepend(message.cloneNode(true));
 
-//header.before(message);
-//header.after(message);
+//headerTest.before(message);
+//headerTest.after(message);
 
 //Delete elements
 document
