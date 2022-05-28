@@ -367,10 +367,12 @@ class AccountCLE {
 
   deposit(val) {
     this._movements.push(val);
+    return this;
   }
 
   withdraw(val) {
     this.deposit(-val);
+    return this;
   }
 
   //Protected method
@@ -382,6 +384,7 @@ class AccountCLE {
     if (this._approveLoan(val)) {
       this.deposit(val);
       console.log('loan approved 2');
+      return this;
     }
   }
 }
@@ -391,6 +394,10 @@ acc3.withdraw(200);
 acc3.requestLoan(1400);
 console.log(acc3.getMovements());
 console.log(acc3);
+
+//Chaining methods
+acc3.deposit(130).deposit(550).withdraw(237).requestLoan(1326).withdraw(230);
+console.log(acc3.getMovements());
 
 //CODE CHALLENGES
 //Coding Challenge 1
@@ -422,7 +429,7 @@ car2.accelerate();
 car2.brake();
 console.log('speed', car2.speed);
 
-//Code challenge 2
+//Coding challenge 2
 
 class CarCl {
   constructor(make, speed) {
@@ -446,6 +453,7 @@ class CarCl {
   brake() {
     this.speed -= 5;
     console.log(this.speed);
+    return this;
   }
 }
 
@@ -459,7 +467,7 @@ console.log('speed', ford.speed);
 ford.speedUS = 50;
 console.log('speed', ford.speed);
 
-//Code challenge 3
+//Coding challenge 3
 
 const EV = function (make, speed, charge) {
   Car.call(this, make, speed);
@@ -491,4 +499,31 @@ tesla.accelerate();
 console.log(tesla.charge);
 console.log('speed', tesla.speed);
 
-//Code challenge 4
+//Coding challenge 4
+class EVLC extends CarCl {
+  #charge;
+  constructor(make, speed, charge) {
+    super(make, speed);
+    this.#charge = charge;
+  }
+  chargeBattery(chargeTo) {
+    this.#charge = chargeTo;
+    return this;
+  }
+  accelerate() {
+    this.speed += 20;
+    this.#charge--;
+    console.log(
+      `${this.make} going at ${this.speed}km/h, with a charge of ${
+        this.#charge
+      }`
+    );
+    return this;
+  }
+}
+
+const rivian = new EVLC('Rivian', 120, 23);
+console.log('Encapsulation', rivian.speed);
+rivian.accelerate().brake().chargeBattery(90).accelerate().accelerate();
+console.log(rivian);
+console.log('speed', rivian.speed);
