@@ -527,3 +527,5 @@ console.log('Encapsulation', rivian.speed);
 rivian.accelerate().brake().chargeBattery(90).accelerate().accelerate();
 console.log(rivian);
 console.log('speed', rivian.speed);
+
+console.log(rivian.speedUS);
