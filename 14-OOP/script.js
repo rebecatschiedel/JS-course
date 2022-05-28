@@ -308,7 +308,7 @@ class Account {
 const acc1 = new Account('Jonas', 'EUR', 1111);
 acc1.movements.push(250);
 acc1.movements.push(-150);
-console.log('-------------', acc1);
+console.log(acc1);
 
 class AccountCL {
   constructor(owner, currency, pin) {
@@ -346,6 +346,51 @@ acc2.deposit(150);
 acc2.withdraw(100);
 acc2.requestLoan(1000);
 console.log(acc2);
+
+// Encapsulation
+class AccountCLE {
+  constructor(owner, currency, pin) {
+    this.owner = owner;
+    this.currency = currency;
+    this.locale = navigator.language;
+    // protected property
+    this._pin = pin;
+    this._movements = [];
+
+    console.log('Thanks for opening an acc class with encapsulation');
+  }
+
+  // public interface
+  getMovements() {
+    return this._movements;
+  }
+
+  deposit(val) {
+    this._movements.push(val);
+  }
+
+  withdraw(val) {
+    this.deposit(-val);
+  }
+
+  //Protected method
+  _approveLoan(val) {
+    return true;
+  }
+
+  requestLoan(val) {
+    if (this._approveLoan(val)) {
+      this.deposit(val);
+      console.log('loan approved 2');
+    }
+  }
+}
+const acc3 = new AccountCLE('Leila', 'EUR', 3333);
+acc3.deposit(10);
+acc3.withdraw(200);
+acc3.requestLoan(1400);
+console.log(acc3.getMovements());
+console.log(acc3);
 
 //CODE CHALLENGES
 //Coding Challenge 1
