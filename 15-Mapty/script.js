@@ -302,6 +302,27 @@ class App {
 
     this.workouts.forEach(workout => this._renderWorkout(workout));
   }
+
+  //Public method
+  reset() {
+    //try it in the console by typing app.reset()
+    localStorage.removeItem('workouts');
+    location.reload();
+  }
 }
 
 const app = new App();
+
+/*
+Additional features
+ - edit workout
+ - delete workout
+ - delete all workouts
+ - sort workouts
+ re-build running and cycling objects coming from local storage
+ - error messages (not alert)
+ - position the map to show all workouts (leaflet library)
+ - draw lines and shapes instead of point marker
+ - geocode location from coordinates
+ -  display weather data for workout time and place
+ */
