@@ -324,6 +324,7 @@ const createImage = function (imgPath) {
   });
 };
 
+/*
 let currentImage;
 createImage('/img/img-1.jpg')
   .then(img => {
@@ -343,28 +344,188 @@ createImage('/img/img-1.jpg')
   })
   .catch(err => console.log(err));
 
+*/
+
 //////////////////////
 // Async Await
 
 const whereAmIAsync = async function () {
-  //Geolocation
-  const pos = await getPosition();
-  const { latitude: lat, longitude: lng } = pos.coords;
-  console.log(lat, lng);
+  try {
+    //Geolocation
+    const pos = await getPosition();
+    const { latitude: lat, longitude: lng } = pos.coords;
+    console.log(lat, lng);
 
-  //Reverse geocoding
-  const resGeo = await fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
-  const dataGeo = await resGeo.json();
-  console.log(dataGeo);
+    //Reverse geocoding
+    const resGeo = await fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+    if (!resGeo.ok) throw new Error('Problem getting the coords');
+    const dataGeo = await resGeo.json();
+    console.log(dataGeo);
 
-  //Country data
-  const res = await fetch(
-    `https://restcountries.com/v3.1/name/${dataGeo.country}`
-  );
+    //Country data
+    const res = await fetch(
+      `https://restcountries.com/v3.1/name/${dataGeo.country}`
+    );
+    if (!res.ok) throw new Error('Problem getting country');
 
-  const data = await res.json();
-  renderCountry(data[0]);
-  countriesContainer.style.opacity = 1;
+    const data = await res.json();
+    renderCountry(data[0]);
+    countriesContainer.style.opacity = 1;
+  } catch (err) {
+    console.log('error here', err.message);
+  }
 };
 
 whereAmIAsync();
+
+//////////////////////
+//Running promises in parallel
+//Promise.all: if any of the promises are rejected, it returns
+
+const getJSONAsync = function (url, errMsg = 'Something went wrong') {
+  return fetch(url).then(response => {
+    if (!response.ok) {
+      throw new Error(errMsg, response.status);
+    }
+    return response.json();
+  });
+};
+
+const get3Countries = async function (country1, country2, country3) {
+  try {
+    /*
+    //run one after another, even though they are not depending on each other
+    const [data1] = await getJSONAsync(
+      `https://restcountries.com/v3.1/name/${country1}`
+    );
+    const [data2] = await getJSONAsync(
+      `https://restcountries.com/v3.1/name/${country2}`
+    );
+    const [data3] = await getJSONAsync(
+      `https://restcountries.com/v3.1/name/${country3}`
+    );
+    
+        console.log([...data1.capital, ...data2.capital, ...data3.capital]);
+    */
+
+    const data = await Promise.all([
+      getJSONAsync(`https://restcountries.com/v3.1/name/${country1}`),
+      getJSONAsync(`https://restcountries.com/v3.1/name/${country2}`),
+      getJSONAsync(`https://restcountries.com/v3.1/name/${country3}`),
+    ]);
+
+    console.log(data.map(d => d[0].capital));
+  } catch (err) {
+    console.log(err, 'getcountries error');
+  }
+};
+
+get3Countries('turkey', 'canada', 'brasil');
+
+//Promise combinators: race, allSettled and any
+//Promise.race short circuit whenever one of the promises get settled (resolved or rejected)
+(async function () {
+  const res = await Promise.race([
+    getJSONAsync(`https://restcountries.com/v3.1/name/italy`),
+    getJSONAsync(`https://restcountries.com/v3.1/name/japan`),
+    getJSONAsync(`https://restcountries.com/v3.1/name/china`),
+  ]);
+  //winning promise
+  console.log(res);
+})();
+
+//automatically reject after a certain amount of time
+const timeout = function (s) {
+  return new Promise(function (_, reject) {
+    setTimeout(function () {
+      reject(new Error('Request took too long'));
+    }, s * 1000);
+  });
+};
+
+Promise.race([
+  getJSONAsync(`https://restcountries.com/v3.1/name/tanzania`),
+  timeout(1),
+])
+  .then(res => console.log(res[0]))
+  .catch(err => console.log(err));
+
+//Promise.allSettled: no matter if the promise got rejected, it will return all settled promises
+Promise.allSettled([
+  Promise.resolve('success'),
+  Promise.resolve('success'),
+  Promise.reject('Error'),
+  Promise.resolve('success'),
+  Promise.reject('Error'),
+]).then(res => console.log(res));
+
+Promise.all([
+  Promise.resolve('success'),
+  Promise.resolve('success'),
+  Promise.reject('Error'),
+  Promise.resolve('success'),
+  Promise.reject('Error'),
+])
+  .then(res => console.log(res))
+  .catch(err => {
+    console.log('promise all error');
+  });
+
+//Promise.any [ES2021]: returns the first fullfilled promise, no matter if is was rejected, unless all of them are rejected
+
+Promise.any([
+  Promise.resolve('success'),
+  Promise.resolve('success'),
+  Promise.reject('Error'),
+  Promise.resolve('success'),
+  Promise.reject('Error'),
+])
+  .then(res => console.log(res))
+  .catch(err => {
+    console.log('promise any error');
+  });
+
+Promise.any([Promise.reject('Error'), Promise.reject('Error')])
+  .then(res => console.log(res))
+  .catch(err => {
+    console.log('promise any error');
+  });
+
+/*
+//Challenge 3
+const createImage2 = function (imgPath) {
+  return new Promise((resolve, reject) => {
+    const img = document.createElement('img');
+    img.src = imgPath;
+
+    img.addEventListener('load', () => {
+      imgContainer.append(img);
+      resolve(img);
+    });
+
+    img.addEventListener('error', err => {
+      reject(new Error('Challenge 3 error', err));
+    });
+  });
+};
+
+const loadNPause = async function () {
+  try {
+  } catch (err) {
+    console.log('loand N Pause error');
+  }
+};
+
+const loadAll = async function (imgArr) {
+  const imgs = [];
+  imgArr.map(img => {
+    const data = Promise.all([]);
+  });
+  console.log(imgs);
+};
+
+//['/img/img-1.jpg','/img/img-2.jpg','/img/img-3.jpg']
+createImage2('/img/img-1.jpg');
+
+loadAll(['/img/img-1.jpg', '/img/img-2.jpg', '/img/img-3.jpg']);
+*/
