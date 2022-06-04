@@ -529,3 +529,57 @@ createImage2('/img/img-1.jpg');
 
 loadAll(['/img/img-1.jpg', '/img/img-2.jpg', '/img/img-3.jpg']);
 */
+
+// Challenge 3
+
+const createImage3 = function (imgPath) {
+  return new Promise((resolve, reject) => {
+    const img = document.createElement('img');
+    img.src = imgPath;
+
+    img.addEventListener('load', () => {
+      imgContainer.append(img);
+      resolve(img);
+    });
+
+    img.addEventListener('error', () => {
+      reject(new Error('Image not found 3'));
+    });
+  });
+};
+
+const wait3 = function (seconds) {
+  return new Promise(function (resolve, _) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+
+let currImg;
+
+const loadNPause3 = async function () {
+  try {
+    const res = await createImage3('./img/img-1.jpg');
+    await wait3(2);
+    res.style.display = 'none';
+    const res2 = await createImage3('./img/img-2.jpg');
+    await wait3(2);
+    res2.style.display = 'none';
+  } catch (err) {
+    throw new Error('ooops');
+  }
+};
+//loadNPause3();
+
+const loadAll = async function (imgArr) {
+  try {
+    const imgs = imgArr.map(img => createImage(img));
+
+    const res = await Promise.all(imgs);
+    res.forEach(img => img.classList.add('parallel'));
+    console.log('promises all', res);
+  } catch (err) {
+    throw new Error('ooops 3');
+  }
+};
+
+loadAll(['img/img-1.jpg', 'img/img-2.jpg', 'img/img-3.jpg']);
